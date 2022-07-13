@@ -29,7 +29,6 @@ app.post('/postUserDetails', async (req, res) => {
   const password = user.password
   const identificationKey = user.identificationKey
   user.password = useEndecrypt('encrypt', identificationKey, password)
-
   user.identificationKey = useEndecrypt('encrypt', ENCRYPTOR, identificationKey)
   await main(
     (func = 'createDoc'),
@@ -191,11 +190,8 @@ app.post('/getpassList', async (req, res) => {
     .catch(console.error)
     .then(() => {
       if (array[0] !== undefined && array[0] !== null) {
-        console.log('encrypted key:',array[0].identificationKey)
         var key = useEndecrypt('decrypt', ENCRYPTOR, array[0].identificationKey)
-        console.log('key',key)
         var password = useEndecrypt('decrypt', key, array[0].password)
-        console.log('password',password)
         res.json({
           id: array[0]._id,
           password: password,
