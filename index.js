@@ -15,25 +15,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 app.use(bodyParser.json())
 
-// app.post('/show_success', async (req, res) => {
-//   console.log(req.body)
-//   try {
-//     const options = {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: req.body,
-//     }
-//     console.log(options.body)
-//     console.log('fetching...')
-//     fetch('http://localhost:5000/show_success', options).then(async (resp) => {
-//       console.log('done')
-//       const resps = await resp.json()
-//       console.log(resps)
-//     })
-//   } catch (TypeError) {}
-// })
 app.post('/postUserDetails', async (req, res) => {
-  const user = await req.body
+  const user = await req.body.info
   const password = user.password
   const identificationKey = user.identificationKey
   user.password = useEndecrypt('encrypt', identificationKey, password)
@@ -44,8 +27,20 @@ app.post('/postUserDetails', async (req, res) => {
     (collection = 'NapsDatabase'),
     (data = user)
   ).catch(console.error)
-  res.json({
-    isDelivered: delivered,
+  .then(async()=>{
+    const base64Image = req.body.imageInfo.image
+    const imageName = req.body.imageInfo.imageName
+    const type = req.body.imageInfo.imageType
+    var response;
+    try{
+      response = await imagesServices.upload(imageName, base64Image,type)
+    }catch(err){
+      console.error(`Error uploading image: ${err.message}`)
+      return next(new Error(`Error uploading image: ${imageName}`))
+    }
+    res.json({
+      isDelivered: delivered,
+    })
   })
 })
 app.post('/postQuiz', async (req, res) => {
