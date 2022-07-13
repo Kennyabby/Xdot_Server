@@ -18,8 +18,7 @@ const upload = async (imageName, base64Image, type)=>{
         Key: imageName,
         Body: new Buffer.from(base64Image.replace(/^data:image\/\w+;base64,/, ""), 'base64'),
         ContentType: type,
-        Expires: 60,
-        ACL: 'public-read'
+        Expires: 60
     };
 
     let data;

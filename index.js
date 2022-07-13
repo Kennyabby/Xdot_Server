@@ -7,6 +7,7 @@ const apiPort = process.env.PORT || 3001
 const { MongoClient } = require('mongodb')
 const ObjectId = require('mongodb').ObjectId
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
+const {upload} = require('./imagesServices.js')
 var propList = []
 var array = {}
 var updated = false
@@ -39,7 +40,7 @@ app.post('/postUserDetails', async (req, res) => {
     const type = req.body.imageInfo.imageType
     var response;
     try{
-      response = await imagesServices.upload(imageName, base64Image,type)
+      response = await upload(imageName, base64Image,type)
     }catch(err){
       console.error(`Error uploading image: ${err.message}`)
       return next(new Error(`Error uploading image: ${imageName}`))
