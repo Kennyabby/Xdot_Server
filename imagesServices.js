@@ -32,6 +32,15 @@ const upload = async (imageName, base64Image, type)=>{
 
     return data.Location;
 }
+const getObject = async (key)=>{
+    const url = await s3.getSignedUrl('getObject', {
+      Bucket: myBucket,
+      Key: key,
+      Expires: 60
+    })
+    return url
+}
+  
 /**
  * @description Promise an upload to S3
  * @param params S3 bucket params
@@ -49,4 +58,4 @@ const promiseUpload = (params) =>{
     });
 }
 
-module.exports = {upload};
+module.exports = {upload, getObject};

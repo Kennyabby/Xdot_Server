@@ -7,7 +7,7 @@ const apiPort = process.env.PORT || 3001
 const { MongoClient } = require('mongodb')
 const ObjectId = require('mongodb').ObjectId
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
-const {upload} = require('./imagesServices.js')
+const {upload, getObject} = require('./imagesServices.js')
 var propList = []
 var array = {}
 var updated = false
@@ -24,36 +24,38 @@ app.use((req, res, next)=>{
   next();
 });
 app.post('/postUserDetails', async (req, res) => {
-  const base64Image = req.body.imageInfo.image
-  const imageName = req.body.imageInfo.imageName
-  const type = req.body.imageInfo.imageType
-  var response;
-  try{
-    url = await upload(imageName, base64Image,type)
-    const user = await req.body.studentInfo
-    console.log(url)
-    user.img=url
-    const password = user.password
-    const identificationKey = user.identificationKey
-    user.password = useEndecrypt('encrypt', identificationKey, password)
-    user.identificationKey = useEndecrypt('encrypt', '4554', identificationKey)
-    await main(
-      (func = 'createDoc'),
-      (database = 'naps'),
-      (collection = 'NapsDatabase'),
-      (data = user)
-    ).catch(console.error)
-    .then(async()=>{
-      res.json({
-        isDelivered: delivered,
-      })
+  const user = await req.body.studentInfo
+  const password = user.password
+  const identificationKey = user.identificationKey
+  user.password = useEndecrypt('encrypt', identificationKey, password)
+  user.identificationKey = useEndecrypt('encrypt', '4554', identificationKey)
+  await main(
+    (func = 'createDoc'),
+    (database = 'naps'),
+    (collection = 'NapsDatabase'),
+    (data = user)
+  ).catch(console.error)
+  .then(async()=>{
+    const base64Image = req.body.imageInfo.image
+    const imageName = req.body.imageInfo.imageName
+    const type = req.body.imageInfo.imageType
+    var response;
+    try{
+      response = await upload(imageName, base64Image,type)
+    }catch(err){
+      console.error(`Error uploading image: ${err.message}`)
+      return next(new Error(`Error uploading image: ${imageName}`))
+    }
+    res.json({
+      isDelivered: delivered,
     })
-  }catch(err){
-    console.error(`Error uploading image: ${err.message}`)
-    return next(new Error(`Error uploading image: ${imageName}`))
-  }
-
-  
+  })
+})
+app.post('/getImgUrl' async(req,res)=>{
+  url = await getObject(req.body.imgUrl)
+  res.json({
+    url:url
+  })
 })
 app.post('/postQuiz', async (req, res) => {
   await main(
