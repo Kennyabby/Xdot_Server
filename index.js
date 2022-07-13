@@ -51,7 +51,7 @@ app.post('/postUserDetails', async (req, res) => {
     })
   })
 })
-app.post('/getImgUrl' async(req,res)=>{
+app.post('/getImgUrl', async(req,res)=>{
   url = await getObject(req.body.imgUrl)
   res.json({
     url:url
