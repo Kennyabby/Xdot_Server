@@ -8,6 +8,7 @@ const { MongoClient } = require('mongodb')
 const ObjectId = require('mongodb').ObjectId
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
 const {upload, getObject} = require('./imagesServices.js')
+const ENCRYPTOR = process.env.ENCRYPTOR
 var propList = []
 var array = {}
 var updated = false
