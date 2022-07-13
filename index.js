@@ -191,8 +191,9 @@ app.post('/getpassList', async (req, res) => {
     .then(() => {
       if (array[0] !== undefined && array[0] !== null) {
         var key = useEndecrypt('decrypt', ENCRYPTOR, array[0].identificationKey)
+        console.log(key)
         var password = useEndecrypt('decrypt', key, array[0].password)
-
+        console.log(password)
         res.json({
           id: array[0]._id,
           password: password,
