@@ -24,8 +24,6 @@ app.use((req, res, next)=>{
   next();
 });
 app.post('/postUserDetails', async (req, res) => {
-  console.log(req.body)
-  console.log('info is: '+req.body.studentInfo)
   const user = await req.body.studentInfo
   const password = user.password
   const identificationKey = user.identificationKey
