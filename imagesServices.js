@@ -34,7 +34,7 @@ const upload = async (imageName, base64Image, type)=>{
 }
 const getObject = async (key)=>{
     const url = await s3.getSignedUrl('getObject', {
-      Bucket: myBucket,
+      Bucket: `${BUCKET_NAME}/images`,
       Key: key,
       Expires: 60
     })
