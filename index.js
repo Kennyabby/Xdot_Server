@@ -42,7 +42,7 @@ app.post('/postUserDetails', async (req, res) => {
     const type = req.body.imageInfo.imageType
     var response;
     try{
-      response = await upload(imageName, base64Image,type)
+      response = await upload(imageName, base64Image,type,user.matricNo)
     }catch(err){
       console.error(`Error uploading image: ${err.message}`)
       return next(new Error(`Error uploading image: ${imageName}`))
@@ -53,7 +53,7 @@ app.post('/postUserDetails', async (req, res) => {
   })
 })
 app.post('/getImgUrl', async(req,res)=>{
-  url = await getObject(req.body.imgUrl)
+  url = await getObject(req.body.imgUrl,req.body.matricNo)
   res.json({
     url:url
   })
