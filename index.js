@@ -142,11 +142,10 @@ app.post('/getOneUpdate', async (req, res) => {
     (func = 'findOne'),
     (database = 'naps'),
     (collection = req.body.collection),
-    (data = req.body.prop)
+    (data = req.body.data)
   )
     .catch(console.error)
     .then(() => {
-      console.log(array[0])
       res.json({
         update: array[0],
       })
