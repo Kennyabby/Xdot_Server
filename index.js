@@ -1,29 +1,35 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-// require('dotenv').config({path: __dirname + '/.env'})
+// require('dotenv').config({ path: __dirname + '/.env' })
 const cors = require('cors')
 const app = express()
 const apiPort = process.env.PORT || 3001
 const { MongoClient } = require('mongodb')
 const ObjectId = require('mongodb').ObjectId
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
-const {upload, getObject} = require('./imagesServices.js')
+const { upload, getObject } = require('./imagesServices.js')
 const ENCRYPTOR = process.env.ENCRYPTOR
 var propList = []
 var array = {}
 var updated = false
 var delivered = false
-app.use(bodyParser.json({limit: "50mb"}));
-app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true,
+    parameterLimit: 50000,
+  })
+)
 app.use(cors())
 app.use(bodyParser.json())
-app.use((req, res, next)=>{
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-});
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  next()
+})
 app.post('/postUserDetails', async (req, res) => {
   const user = await req.body.studentInfo
   const password = user.password
@@ -35,27 +41,28 @@ app.post('/postUserDetails', async (req, res) => {
     (database = 'naps'),
     (collection = 'NapsDatabase'),
     (data = user)
-  ).catch(console.error)
-  .then(async()=>{
-    const base64Image = req.body.imageInfo.image
-    const imageName = req.body.imageInfo.imageName
-    const type = req.body.imageInfo.imageType
-    var response;
-    try{
-      response = await upload(imageName, base64Image,type,user.matricNo)
-    }catch(err){
-      console.error(`Error uploading image: ${err.message}`)
-      return next(new Error(`Error uploading image: ${imageName}`))
-    }
-    res.json({
-      isDelivered: delivered,
+  )
+    .catch(console.error)
+    .then(async () => {
+      const base64Image = req.body.imageInfo.image
+      const imageName = req.body.imageInfo.imageName
+      const type = req.body.imageInfo.imageType
+      var response
+      try {
+        response = await upload(imageName, base64Image, type, user.matricNo)
+      } catch (err) {
+        console.error(`Error uploading image: ${err.message}`)
+        return next(new Error(`Error uploading image: ${imageName}`))
+      }
+      res.json({
+        isDelivered: delivered,
+      })
     })
-  })
 })
-app.post('/getImgUrl', async(req,res)=>{
-  url = await getObject(req.body.imgUrl,req.body.matricNo)
+app.post('/getImgUrl', async (req, res) => {
+  url = await getObject(req.body.imgUrl, req.body.matricNo)
   res.json({
-    url:url
+    url: url,
   })
 })
 app.post('/postQuiz', async (req, res) => {
@@ -214,7 +221,22 @@ app.post('/getNapsSettings', async (req, res) => {
     .catch(console.error)
     .then(() => {
       res.json({
-        settings: propList[0],
+        settings: propList,
+      })
+    })
+})
+app.post('/updateNapsSettings', async (req, res) => {
+  await main(
+    (func = 'updateOne'),
+    (database = 'naps'),
+    (collection = 'NapsSettings'),
+    (data = req.body.prop)
+  )
+    .catch(console.error)
+    .then(() => {
+      console.log(updated)
+      res.json({
+        updated: updated,
       })
     })
 })
