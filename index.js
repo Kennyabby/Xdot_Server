@@ -33,9 +33,7 @@ app.use((req, res, next) => {
 app.post('/postUserDetails', async (req, res) => {
   const user = await req.body.studentInfo
   const password = user.password
-  const identificationKey = user.identificationKey
-  user.password = useEndecrypt('encrypt', identificationKey, password)
-  user.identificationKey = useEndecrypt('encrypt', ENCRYPTOR, identificationKey)
+  user.password = useEndecrypt('encrypt', ENCRYPTOR, password)
   await main(
     (func = 'createDoc'),
     (database = 'naps'),
@@ -196,8 +194,7 @@ app.post('/getpassList', async (req, res) => {
     .catch(console.error)
     .then(() => {
       if (array[0] !== undefined && array[0] !== null) {
-        var key = useEndecrypt('decrypt', ENCRYPTOR, array[0].identificationKey)
-        var password = useEndecrypt('decrypt', key, array[0].password)
+        var password = useEndecrypt('decrypt', ENCRYPTOR, array[0].password)
         res.json({
           id: array[0]._id,
           password: password,
