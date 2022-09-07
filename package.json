@@ -12,6 +12,7 @@
     "framer-motion": "^6.2.8",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.8",
+    "nodemailer": "^6.7.8",
     "nodemon": "^2.0.15"
   },
   "scripts": {

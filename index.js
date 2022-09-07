@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 // require('dotenv').config({ path: __dirname + '/.env' })
+const nodemailer = require('nodemailer')
 const cors = require('cors')
 const app = express()
 const apiPort = process.env.PORT || 3001
@@ -9,10 +10,29 @@ const ObjectId = require('mongodb').ObjectId
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
 const { upload, getObject } = require('./imagesServices.js')
 const ENCRYPTOR = process.env.ENCRYPTOR
+const MAIL = process.env.MAIL
+const MAIL_PASS = process.env.MAIL_PASS
 var propList = []
 var array = {}
 var updated = false
 var delivered = false
+
+const sepList = ({ list, sep }) => {
+  var newVar = ''
+  list.forEach((item, i) => {
+    if (list.length === 1) {
+      newVar += item
+    } else {
+      if (i) {
+        newVar += sep + ' ' + item
+      } else {
+        newVar += item
+      }
+    }
+  })
+  return newVar
+}
+
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(
   bodyParser.urlencoded({
@@ -236,6 +256,46 @@ app.post('/updateNapsSettings', async (req, res) => {
         updated: updated,
       })
     })
+})
+app.post('/mailUser', async (req, res) => {
+  // console.log('preparing mail...')
+  details = req.body
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: MAIL,
+      pass: MAIL_PASS,
+    },
+  })
+
+  var mailOptions = {
+    from: MAIL,
+    to: sepList({ list: details.to, sep: ',' }),
+    subject: details.subject,
+  }
+  if (details.type === 'html') {
+    mailOptions.html = details.message
+  } else {
+    mailOptions.text = details.message
+  }
+  // console.log(
+  //   'sending mail to ' + sepList({ list: details.to, sep: ',' }) + '...'
+  // )
+  // console.log('username: ' + MAIL + ' password: ' + MAIL_PASS)
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      // console.log('an error occured: ' + error)
+      res.json({
+        mailDelivered: false,
+      })
+    } else {
+      // console.log('successfully sent mail: ' + info.response)
+      res.json({
+        mailDelivered: true,
+        info: info.response,
+      })
+    }
+  })
 })
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
 
