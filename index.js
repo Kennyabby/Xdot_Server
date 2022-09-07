@@ -267,9 +267,9 @@ app.post('/mailUser', async (req, res) => {
       pass: MAIL_PASS,
     },
   })
-
+  var from = 'NAPSUI <' + MAIL + '>'
   var mailOptions = {
-    from: MAIL,
+    from: from,
     to: sepList({ list: details.to, sep: ',' }),
     subject: details.subject,
   }
