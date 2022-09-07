@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 // require('dotenv').config({ path: __dirname + '/.env' })
 const nodemailer = require('nodemailer')
+const emailValidator = require('deep-email-validator')
 const cors = require('cors')
 const app = express()
 const apiPort = process.env.PORT || 3001
@@ -98,24 +99,54 @@ app.post('/postQuiz', async (req, res) => {
     })
 })
 
-app.post('/getMatricList', async (req, res) => {
+app.post('/isMatricPresent', async (req, res) => {
   await main(
-    (func = 'findDocprop'),
+    (func = 'findOne'),
     (database = 'naps'),
     (collection = 'NapsDatabase'),
     (data = req.body)
   )
     .catch(console.error)
     .then(() => {
-      var list = propList.map((obj) => {
-        return obj.matricNo
-      })
-      res.json({
-        matricList: list,
-      })
+      // console.log('error found:: ', error)
+      // if (error) {
+      //   res.status(400).send({
+      //     message: 'could not connect to database',
+      //   })
+      // } else {
+
+      // }
+      if (array[0] === null) {
+        res.json({
+          isPresent: false,
+        })
+      } else {
+        res.json({
+          isPresent: true,
+        })
+      }
     })
 })
-
+app.post('/isEmailPresent', async (req, res) => {
+  await main(
+    (func = 'findOne'),
+    (database = 'naps'),
+    (collection = 'NapsDatabase'),
+    (data = req.body)
+  )
+    .catch(console.error)
+    .then(() => {
+      if (array[0] === null) {
+        res.json({
+          isPresent: false,
+        })
+      } else {
+        res.json({
+          isPresent: true,
+        })
+      }
+    })
+})
 app.post('/getUserDetails', async (req, res) => {
   await main(
     (func = 'findOne'),
@@ -251,11 +282,24 @@ app.post('/updateNapsSettings', async (req, res) => {
   )
     .catch(console.error)
     .then(() => {
-      console.log(updated)
       res.json({
         updated: updated,
       })
     })
+})
+app.post('/validateMail', async (req, res) => {
+  emailValidator.validate(req.body.email).then((response) => {
+    if (response.valid === true) {
+      res.json({
+        isValid: true,
+      })
+    } else if (response.valid === false) {
+      res.json({
+        isValid: false,
+      })
+    }
+  })
+  // console.log(valid)
 })
 app.post('/mailUser', async (req, res) => {
   // console.log('preparing mail...')
@@ -340,6 +384,7 @@ const main = async (func, database, collection, data, limit) => {
       .collection(collection)
       .findOne({ ...data })
     array = await [result]
+    // return false
   }
   const findMany = async (database, collection, data) => {
     const result = await client
@@ -394,6 +439,7 @@ const main = async (func, database, collection, data, limit) => {
     }
   } catch (e) {
     console.error(e)
+    // return true
   } finally {
     await client.close()
   }
