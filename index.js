@@ -258,7 +258,7 @@ app.post('/updateNapsSettings', async (req, res) => {
     })
 })
 app.post('/mailUser', async (req, res) => {
-  // console.log('preparing mail...')
+  console.log('preparing mail...')
   details = req.body
   var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -278,18 +278,18 @@ app.post('/mailUser', async (req, res) => {
   } else {
     mailOptions.text = details.message
   }
-  // console.log(
-  //   'sending mail to ' + sepList({ list: details.to, sep: ',' }) + '...'
-  // )
-  // console.log('username: ' + MAIL + ' password: ' + MAIL_PASS)
+  console.log(
+    'sending mail to ' + sepList({ list: details.to, sep: ',' }) + '...'
+  )
+  console.log('username: ' + MAIL + ' password: ' + MAIL_PASS)
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      // console.log('an error occured: ' + error)
+      console.log('an error occured: ' + error)
       res.json({
         mailDelivered: false,
       })
     } else {
-      // console.log('successfully sent mail: ' + info.response)
+      console.log('successfully sent mail: ' + info.response)
       res.json({
         mailDelivered: true,
         info: info.response,
