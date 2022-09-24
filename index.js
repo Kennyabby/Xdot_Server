@@ -17,6 +17,7 @@ var propList = []
 var array = {}
 var updated = false
 var delivered = false
+var sessionClosed = false
 
 const sepList = ({ list, sep }) => {
   var newVar = ''
@@ -55,6 +56,7 @@ app.post('/postUserDetails', async (req, res) => {
   const user = await req.body.studentInfo
   const password = user.password
   user.password = useEndecrypt('encrypt', ENCRYPTOR, password)
+  user.sessionId = ObjectId()
   await main(
     (func = 'createDoc'),
     (database = 'naps'),
@@ -108,14 +110,6 @@ app.post('/isMatricPresent', async (req, res) => {
   )
     .catch(console.error)
     .then(() => {
-      // console.log('error found:: ', error)
-      // if (error) {
-      //   res.status(400).send({
-      //     message: 'could not connect to database',
-      //   })
-      // } else {
-
-      // }
       if (array[0] === null) {
         res.json({
           isPresent: false,
@@ -147,6 +141,7 @@ app.post('/isEmailPresent', async (req, res) => {
       }
     })
 })
+
 app.post('/getUserDetails', async (req, res) => {
   await main(
     (func = 'findOne'),
@@ -155,7 +150,7 @@ app.post('/getUserDetails', async (req, res) => {
     (data =
       req.body.matricNo !== undefined
         ? req.body
-        : { _id: ObjectId(req.body._id) })
+        : { sessionId: ObjectId(req.body.sessionId) })
   )
     .catch(console.error)
     .then(() => {
@@ -235,25 +230,47 @@ app.post('/updateOneDoc', async (req, res) => {
       })
     })
 })
+app.post('/closeSession', async (req, res) => {
+  const newUserId = ObjectId()
+  await main(
+    (func = 'updateOne'),
+    (database = 'naps'),
+    (collection = 'NapsDatabase'),
+    (data = [{ _id: ObjectId(req.body.prop[0]._id) }, { sessionId: newUserId }])
+  )
+    .catch(console.error)
+    .then(() => {
+      res.json({
+        sessionClosed: sessionClosed,
+      })
+    })
+})
 app.post('/getpassList', async (req, res) => {
   await main(
     (func = 'findOne'),
     (database = 'naps'),
     (collection = 'NapsDatabase'),
-    (data = req.body)
+    (data = req.body.prop)
   )
     .catch(console.error)
     .then(() => {
       if (array[0] !== undefined && array[0] !== null) {
         var password = useEndecrypt('decrypt', ENCRYPTOR, array[0].password)
-        res.json({
-          id: array[0]._id,
-          password: password,
-        })
+        if (password.trim() === req.body.pass.trim()) {
+          res.json({
+            id: array[0].sessionId,
+            confirmed: true,
+          })
+        } else {
+          res.json({
+            id: array[0].sessionId,
+            confirmed: false,
+          })
+        }
       } else {
         res.json({
           id: '',
-          password: '',
+          confirmed: false,
         })
       }
     })
@@ -311,7 +328,7 @@ app.post('/mailUser', async (req, res) => {
       pass: MAIL_PASS,
     },
   })
-  var from = 'NAPSUI <' + MAIL + '>'
+  var from = 'NAPS(UI) <' + MAIL + '>'
   var mailOptions = {
     from: from,
     to: sepList({ list: details.to, sep: ',' }),
@@ -322,18 +339,12 @@ app.post('/mailUser', async (req, res) => {
   } else {
     mailOptions.text = details.message
   }
-  // console.log(
-  //   'sending mail to ' + sepList({ list: details.to, sep: ',' }) + '...'
-  // )
-  // console.log('username: ' + MAIL + ' password: ' + MAIL_PASS)
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      // console.log('an error occured: ' + error)
       res.json({
         mailDelivered: false,
       })
     } else {
-      // console.log('successfully sent mail: ' + info.response)
       res.json({
         mailDelivered: true,
         info: info.response,
@@ -404,12 +415,14 @@ const main = async (func, database, collection, data, limit) => {
     array = await result.toArray()
   }
   const updateOne = async (database, collection, data) => {
+    sessionClosed = false
     updated = false
     const result = await client
       .db(database)
       .collection(collection)
       .updateOne(data[0], { $set: data[1] })
     updated = true
+    sessionClosed = true
   }
   try {
     await client.connect()
