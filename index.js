@@ -35,7 +35,7 @@ const sepList = ({ list, sep }) => {
   return newVar
 }
 
-app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.json({ limit: '60mb' }))
 app.use(
   bodyParser.urlencoded({
     limit: '50mb',
