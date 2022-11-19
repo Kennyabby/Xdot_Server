@@ -1,4 +1,5 @@
 const express = require('express')
+require('https').globalAgent.options.rejectUnauthorized = false
 const bodyParser = require('body-parser')
 // require('dotenv').config({ path: __dirname + '/.env' })
 const nodemailer = require('nodemailer')
@@ -8,11 +9,19 @@ const app = express()
 const apiPort = process.env.PORT || 3001
 const { MongoClient } = require('mongodb')
 const ObjectId = require('mongodb').ObjectId
+const session = require('express-session')
+const passport = require('passport')
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
+const { OAuth2Client } = require('google-auth-library')
+const client = new OAuth2Client(GOOGLE_CLIENT_ID)
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
 const { upload, getObject } = require('./imagesServices.js')
 const ENCRYPTOR = process.env.ENCRYPTOR
 const MAIL = process.env.MAIL
 const MAIL_PASS = process.env.MAIL_PASS
+var userProfile
 var propList = []
 var array = {}
 var updated = false
@@ -34,7 +43,13 @@ const sepList = ({ list, sep }) => {
   })
   return newVar
 }
-
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: true,
+    secret: 'SECRET',
+  })
+)
 app.use(bodyParser.json({ limit: '60mb' }))
 app.use(
   bodyParser.urlencoded({
@@ -51,6 +66,86 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   res.setHeader('Access-Control-Allow-Credentials', true)
   next()
+})
+
+app.use(passport.initialize())
+app.use(passport.session())
+
+passport.serializeUser(function (user, cb) {
+  cb(null, user)
+})
+
+passport.deserializeUser(function (obj, cb) {
+  cb(null, obj)
+})
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      // callbackURL: 'http://napsuiserver.herokuapp.com/auth/google/callback',
+      callbackURL: 'http://localhost:3001/auth/google/callback',
+    },
+    function (accessToken, refreshToken, profile, done) {
+      userProfile = profile
+      return done(null, userProfile)
+    }
+  )
+)
+app.get('/error', (req, res) => res.send('error logging in'))
+app.post(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+)
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/error' }),
+  async function (req, res) {
+    // Successful authentication, redirect success.
+    // res.redirect('/success')
+    const user = userProfile
+    const details = user._json
+    console.log(details)
+    // res.redirect(
+    //   'http://localhost:3000/signin?name=' +
+    //     details.name +
+    //     '&sub=' +
+    //     details.sub +
+    //     '&email=' +
+    //     details.email +
+    //     '&email_verified=' +
+    //     details.email_verified +
+    //     '&locale=' +
+    //     details.locale +
+    //     '&picture=' +
+    //     details.picture
+    // )
+    // await main(
+    //   (func = 'createDoc'),
+    //   (database = 'naps'),
+    //   (collection = 'NapsDatabase'),
+    //   (data = user)
+    // )
+    //   .catch(console.error)
+    //   .then(async () => {
+    //     console.log('delevered: ', delivered)
+    //     res.json({
+    //       isDelivered: delivered,
+    //     })
+    //   })
+  }
+)
+app.post('/api/v1/auth/google', async (req, res) => {
+  const { token } = req.body
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: GOOGLE_CLIENT_ID,
+  })
+  const { name, email, picture } = ticket.getPayload()
+
+  res.status(201)
+  res.json({ user: { name, email, picture } })
 })
 app.post('/postUserDetails', async (req, res) => {
   const user = await req.body.studentInfo
@@ -84,6 +179,11 @@ app.post('/getImgUrl', async (req, res) => {
   url = await getObject(req.body.imgUrl, req.body.matricNo)
   res.json({
     url: url,
+  })
+})
+app.post('/get_google_id', async (req, res) => {
+  res.json({
+    google_id: GOOGLE_CLIENT_ID,
   })
 })
 app.post('/postQuiz', async (req, res) => {
@@ -137,6 +237,7 @@ app.post('/isEmailPresent', async (req, res) => {
       } else {
         res.json({
           isPresent: true,
+          id: array[0].sessionId,
         })
       }
     })
@@ -353,7 +454,79 @@ app.post('/mailUser', async (req, res) => {
   })
 })
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
-
+const positionSettings = {
+  positionSettings: [
+    {
+      position: 'president',
+      description: 'First member and the head of the association',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['300'], cgpa: '2.50' },
+    },
+    {
+      position: 'vice president',
+      description:
+        'Assistant and advisor to the president in the performance of his duties',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+    {
+      position: 'general secretary',
+      description:
+        'Responsible for all the secretarial duties of the association',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+    {
+      position: 'assistant general secretary',
+      description:
+        'Assistant and advisor to the general secretary in the performance of his duties',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+    {
+      position: 'public relation officer',
+      description:
+        "Responsible for the publicity of the association's activities",
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+    {
+      position: 'finacial secretary',
+      description:
+        "Responsible for recieving and accounting for all the associations's money derived from any source",
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['300'], cgpa: '2.00' },
+    },
+    {
+      position: 'social director',
+      description:
+        'Responsible for the promotion and organization of social and recreational activities of the association',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+    {
+      position: 'sport director',
+      description: 'Coordinator of all sporting activities of the association',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+    {
+      position: 'academic coordinator',
+      description: 'Chairman of the academic committee of the assocition',
+      heldBy: 'vacant',
+      previouslyHeldBy: [],
+      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
+    },
+  ],
+}
 const main = async (func, database, collection, data, limit) => {
   // const uri = 'mongodb://localhost:27017'
   const uri = process.env.MONGO_URL
@@ -457,3 +630,4 @@ const main = async (func, database, collection, data, limit) => {
     await client.close()
   }
 }
+// main('createDoc', 'naps', 'NapsSettings', positionSettings)
