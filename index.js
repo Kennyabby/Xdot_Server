@@ -1,7 +1,7 @@
 const express = require('express')
-require('https').globalAgent.options.rejectUnauthorized = false
+// require('https').globalAgent.options.rejectUnauthorized = false
 const bodyParser = require('body-parser')
-// require('dotenv').config({ path: __dirname + '/.env' })
+require('dotenv').config({ path: __dirname + '/.env' })
 const nodemailer = require('nodemailer')
 const emailValidator = require('deep-email-validator')
 const cors = require('cors')
@@ -15,7 +15,7 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const { OAuth2Client } = require('google-auth-library')
-const client = new OAuth2Client(GOOGLE_CLIENT_ID)
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 const { useEndecrypt } = require('./algorithms/useEndecrypt.js')
 const { upload, getObject } = require('./imagesServices.js')
 const ENCRYPTOR = process.env.ENCRYPTOR
@@ -138,6 +138,7 @@ app.get(
 )
 app.post('/api/v1/auth/google', async (req, res) => {
   const { token } = req.body
+  console.log('token:', token)
   const ticket = await client.verifyIdToken({
     idToken: token,
     audience: GOOGLE_CLIENT_ID,
@@ -172,6 +173,35 @@ app.post('/postUserDetails', async (req, res) => {
       }
       res.json({
         isDelivered: delivered,
+      })
+    })
+})
+app.post('/updateUserImg', async (req, res) => {
+  await main(
+    (func = 'updateOne'),
+    (database = 'naps'),
+    (collection = 'NapsDatabase'),
+    (data = req.body.prop)
+  )
+    .catch(console.error)
+    .then(async () => {
+      const base64Image = req.body.imageInfo.image
+      const imageName = req.body.imageInfo.imageName
+      const type = req.body.imageInfo.imageType
+      var response
+      try {
+        response = await upload(
+          imageName,
+          base64Image,
+          type,
+          req.body.prop[0].matricNo
+        )
+      } catch (err) {
+        console.error(`Error uploading image: ${err.message}`)
+        return next(new Error(`Error uploading image: ${imageName}`))
+      }
+      res.json({
+        isDelivered: updated,
       })
     })
 })
