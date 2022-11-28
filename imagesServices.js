@@ -12,9 +12,9 @@ const s3 = new AWS.S3({
  * @param type Image type
  * @return string S3 image URL or error accordingly
  */
-const upload = async (imageName, base64Image, type, matricNo) => {
+const upload = async (imageName, base64Image, type, matricNo, path) => {
   const params = {
-    Bucket: `${BUCKET_NAME}/NapsiteFiles/${matricNo}/images/profileImages`,
+    Bucket: `${BUCKET_NAME}/NapsiteFiles/${matricNo}/images/${path}`,
     Key: imageName,
     Body: new Buffer.from(
       base64Image.replace(/^data:image\/\w+;base64,/, ''),
@@ -35,9 +35,9 @@ const upload = async (imageName, base64Image, type, matricNo) => {
 
   return data.Location
 }
-const getObject = async (key, matricNo) => {
+const getObject = async (key, matricNo, path) => {
   const url = await s3.getSignedUrl('getObject', {
-    Bucket: `${BUCKET_NAME}/NapsiteFiles/${matricNo}/images/profileImages`,
+    Bucket: `${BUCKET_NAME}/NapsiteFiles/${matricNo}/images/${path}`,
     Key: key,
     Expires: 60,
   })

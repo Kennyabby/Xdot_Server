@@ -166,7 +166,13 @@ app.post('/postUserDetails', async (req, res) => {
       const type = req.body.imageInfo.imageType
       var response
       try {
-        response = await upload(imageName, base64Image, type, user.matricNo)
+        response = await upload(
+          imageName,
+          base64Image,
+          type,
+          user.matricNo,
+          'profileImages'
+        )
       } catch (err) {
         console.error(`Error uploading image: ${err.message}`)
         return next(new Error(`Error uploading image: ${imageName}`))
@@ -194,7 +200,8 @@ app.post('/updateUserImg', async (req, res) => {
           imageName,
           base64Image,
           type,
-          req.body.prop[0].matricNo
+          req.body.prop[0].matricNo,
+          'profileImages'
         )
       } catch (err) {
         console.error(`Error uploading image: ${err.message}`)
@@ -206,7 +213,11 @@ app.post('/updateUserImg', async (req, res) => {
     })
 })
 app.post('/getImgUrl', async (req, res) => {
-  url = await getObject(req.body.imgUrl, req.body.matricNo)
+  url = await getObject(
+    req.body.imgUrl,
+    req.body.matricNo,
+    req.body.imagePath !== undefined ? req.body.imagePath : 'profileImages'
+  )
   res.json({
     url: url,
   })
@@ -224,7 +235,25 @@ app.post('/postQuiz', async (req, res) => {
     (data = req.body.update)
   )
     .catch(console.error)
-    .then(() => {
+    .then(async () => {
+      req.body.imagesInfo.forEach(async (imageInfo, i) => {
+        const base64Image = imageInfo.image
+        const imageName = imageInfo.imageName
+        const type = imageInfo.imageType
+        var response
+        try {
+          response = await upload(
+            imageName,
+            base64Image,
+            type,
+            req.body.update.matricNo,
+            'postImages'
+          )
+        } catch (err) {
+          console.error(`Error uploading image: ${err.message}`)
+          return next(new Error(`Error uploading image: ${imageName}`))
+        }
+      })
       res.json({
         isDelivered: delivered,
       })
