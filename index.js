@@ -67,18 +67,14 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', true)
   next()
 })
-
 app.use(passport.initialize())
 app.use(passport.session())
-
 passport.serializeUser(function (user, cb) {
   cb(null, user)
 })
-
 passport.deserializeUser(function (obj, cb) {
   cb(null, obj)
 })
-
 passport.use(
   new GoogleStrategy(
     {
@@ -590,7 +586,6 @@ const main = async (func, database, collection, data, limit) => {
   // const uri = 'mongodb://localhost:27017'
   const uri = process.env.MONGO_URL
   const client = new MongoClient(uri, { useNewUrlParser: true })
-
   const listDatabases = async () => {
     const databaseList = await client.db().admin().listDatabases()
     databaseList.databases.forEach((db) => console.log(` - ${db.name}`))
