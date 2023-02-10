@@ -419,7 +419,7 @@ app.post('/getpassList', async (req, res) => {
           })
         } else {
           res.json({
-            id: array[0].sessionId,
+            id: '',
             confirmed: false,
           })
         }
@@ -484,7 +484,7 @@ app.post('/mailUser', async (req, res) => {
       pass: MAIL_PASS,
     },
   })
-  var from = 'NAPS(UI) <' + MAIL + '>'
+  var from = 'Encart oo <' + MAIL + '>'
   var mailOptions = {
     from: from,
     to: sepList({ list: details.to, sep: ',' }),
