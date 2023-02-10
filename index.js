@@ -58,15 +58,19 @@ app.use(
     parameterLimit: 50000,
   })
 )
-app.use(cors())
+const corsOptions = {
+  origin: ['https://xdot.vercel.app/', 'http://localhost:3000'],
+  optionsSuccessStatus: 200,
+}
+app.use(cors(corsOptions))
 app.use(bodyParser.json())
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  res.setHeader('Access-Control-Allow-Credentials', true)
-  next()
-})
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*')
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+//   res.setHeader('Access-Control-Allow-Credentials', true)
+//   next()
+// })
 app.use(passport.initialize())
 app.use(passport.session())
 passport.serializeUser(function (user, cb) {
@@ -583,7 +587,6 @@ const positionSettings = {
   ],
 }
 const main = async (func, database, collection, data, limit) => {
-  // note:
   // const uri = 'mongodb://localhost:27017'
   const uri = process.env.MONGO_URL
   const client = new MongoClient(uri, { useNewUrlParser: true })
