@@ -59,7 +59,7 @@ app.use(
   })
 )
 const corsOptions = {
-  origin: ['https://xdot.vercel.app/', 'http://localhost:3000'],
+  origin: ['https://xdot.vercel.app', 'http://localhost:3000'],
   optionsSuccessStatus: 200,
 }
 app.use(cors(corsOptions))
