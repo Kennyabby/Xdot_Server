@@ -3,7 +3,8 @@ require('https').globalAgent.options.rejectUnauthorized = false
 const bodyParser = require('body-parser')
 // require('dotenv').config({ path: __dirname + '/.env' })
 const nodemailer = require('nodemailer')
-const emailValidator = require('deep-email-validator')
+// const emailValidator = require('deep-email-validator')
+var emailCheck = require('email-check')
 const cors = require('cors')
 const app = express()
 const apiPort = process.env.PORT || 3001
@@ -465,17 +466,40 @@ app.post('/updateNapsSettings', async (req, res) => {
     })
 })
 app.post('/validateMail', async (req, res) => {
-  emailValidator.validate(req.body.email).then((response) => {
-    if (response.valid === true) {
-      res.json({
-        isValid: true,
-      })
-    } else if (response.valid === false) {
-      res.json({
-        isValid: false,
-      })
-    }
-  })
+  console.log('validating...', req.body.email)
+  await emailCheck(req.body.email)
+    .then(function (resp) {
+      console.log('validation response for', req.body.email, ': ', resp)
+      if (resp === true) {
+        console.log('it is true')
+        res.json({
+          isValid: true,
+        })
+      } else {
+        console.log('it is false')
+        res.json({
+          isValid: false,
+        })
+      }
+    })
+    .catch(function (err) {
+      if (err.message === 'refuse') {
+        // The MX server is refusing requests from your IP address.
+      } else {
+        // Decide what to do with other errors.
+      }
+    })
+  // emailValidator.validate(req.body.email).then((response) => {
+  //   if (response.valid === true) {
+  // res.json({
+  //   isValid: true,
+  // })
+  //   } else {
+  //     res.json({
+  //       isValid: false,
+  //     })
+  //   }
+  // })
   // console.log(valid)
 })
 app.post('/mailUser', async (req, res) => {
