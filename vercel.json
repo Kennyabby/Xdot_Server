@@ -6,7 +6,9 @@
     {
       "src": "/(.*)",
       "dest": "/index.js",
-      "headers": { "Access-Control-Allow-Origin": "*" }
+      "headers": {
+        "Access-Control-Allow-Origin": "https://xdot.vercel.app, http://localhost:3000"
+      }
     }
   ]
 }
