@@ -3,8 +3,6 @@ require('https').globalAgent.options.rejectUnauthorized = false
 const bodyParser = require('body-parser')
 // require('dotenv').config({ path: __dirname + '/.env' })
 const nodemailer = require('nodemailer')
-// const emailValidator = require('deep-email-validator')
-// var emailCheck = require('email-check')
 const emailExistence = require('email-existence')
 const cors = require('cors')
 const app = express()
@@ -163,22 +161,6 @@ app.post('/postUserDetails', async (req, res) => {
   )
     .catch(console.error)
     .then(async () => {
-      const base64Image = req.body.imageInfo.image
-      const imageName = req.body.imageInfo.imageName
-      const type = req.body.imageInfo.imageType
-      var response
-      try {
-        response = await upload(
-          imageName,
-          base64Image,
-          type,
-          user.matricNo,
-          'profileImages'
-        )
-      } catch (err) {
-        console.error(`Error uploading image: ${err.message}`)
-        return next(new Error(`Error uploading image: ${imageName}`))
-      }
       res.json({
         isDelivered: delivered,
       })
@@ -488,40 +470,6 @@ app.post('/validateMail', async (req, res) => {
       }
     }
   })
-  // await emailCheck(req.body.email)
-  //   .then(function (resp) {
-  //     console.log('validation response for', req.body.email, ': ', resp)
-  // if (resp === true) {
-  //   console.log('it is true')
-  //   res.json({
-  //     isValid: true,
-  //   })
-  // } else {
-  //   console.log('it is false')
-  //   res.json({
-  //     isValid: false,
-  //   })
-  // }
-  //   })
-  //   .catch(function (err) {
-  //     if (err.message === 'refuse') {
-  //       // The MX server is refusing requests from your IP address.
-  //     } else {
-  //       // Decide what to do with other errors.
-  //     }
-  //   })
-  // emailValidator.validate(req.body.email).then((response) => {
-  //   if (response.valid === true) {
-  // res.json({
-  //   isValid: true,
-  // })
-  //   } else {
-  //     res.json({
-  //       isValid: false,
-  //     })
-  //   }
-  // })
-  // console.log(valid)
 })
 app.post('/mailUser', async (req, res) => {
   // console.log('preparing mail...')
