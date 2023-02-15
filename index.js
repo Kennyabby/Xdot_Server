@@ -264,6 +264,26 @@ app.post('/isMatricPresent', async (req, res) => {
       }
     })
 })
+app.post('/isUserPresent', async (req, res) => {
+  await main(
+    (func = 'findOne'),
+    (database = 'naps'),
+    (collection = 'NapsDatabase'),
+    (data = req.body)
+  )
+    .catch(console.error)
+    .then(() => {
+      if (array[0] === null) {
+        res.json({
+          isPresent: false,
+        })
+      } else {
+        res.json({
+          isPresent: true,
+        })
+      }
+    })
+})
 app.post('/isEmailPresent', async (req, res) => {
   await main(
     (func = 'findOne'),
