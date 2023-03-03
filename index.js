@@ -184,7 +184,7 @@ app.post('/updateUserImg', async (req, res) => {
           imageName,
           base64Image,
           type,
-          req.body.prop[0].matricNo,
+          req.body.prop[0].userName,
           'profileImages'
         )
       } catch (err) {
@@ -199,7 +199,7 @@ app.post('/updateUserImg', async (req, res) => {
 app.post('/getImgUrl', async (req, res) => {
   url = await getObject(
     req.body.imgUrl,
-    req.body.matricNo,
+    req.body.userName,
     req.body.imagePath !== undefined ? req.body.imagePath : 'profileImages'
   )
   res.json({
