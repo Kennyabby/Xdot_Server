@@ -420,7 +420,7 @@ app.post('/getpassList', async (req, res) => {
     .then(() => {
       if (array[0] !== undefined && array[0] !== null) {
         var password = useEndecrypt('decrypt', ENCRYPTOR, array[0].password)
-        if (password === req.body.pass) {
+        if (password.trim() === req.body.pass.trim()) {
           res.json({
             id: array[0].sessionId,
             confirmed: true,
