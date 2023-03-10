@@ -21,6 +21,7 @@ const { upload, getObject } = require('./imagesServices.js')
 const ENCRYPTOR = process.env.ENCRYPTOR
 const MAIL = process.env.MAIL
 const MAIL_PASS = process.env.MAIL_PASS
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 var userProfile
 var propList = []
 var array = {}
@@ -147,6 +148,11 @@ app.post('/api/v1/auth/google', async (req, res) => {
 
   res.status(201)
   res.json({ user: { name, email, picture } })
+})
+app.post('/getOpenAI', async (req, res) => {
+  res.json({
+    key: OPENAI_API_KEY,
+  })
 })
 app.post('/postUserDetails', async (req, res) => {
   const user = await req.body.studentInfo
