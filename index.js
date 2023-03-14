@@ -217,10 +217,10 @@ app.post('/get_google_id', async (req, res) => {
     google_id: GOOGLE_CLIENT_ID,
   })
 })
-app.post('/postQuiz', async (req, res) => {
+app.post('/createPost', async (req, res) => {
   await main(
     (func = 'createDoc'),
-    (database = 'naps'),
+    (database = req.body.database),
     (collection = req.body.collection),
     (data = req.body.update)
   )
@@ -236,7 +236,7 @@ app.post('/postQuiz', async (req, res) => {
             imageName,
             base64Image,
             type,
-            req.body.update.matricNo,
+            req.body.update.userName,
             'postImages'
           )
         } catch (err) {
