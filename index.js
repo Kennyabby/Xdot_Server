@@ -226,24 +226,26 @@ app.post('/createPost', async (req, res) => {
   )
     .catch(console.error)
     .then(async () => {
-      req.body.imagesInfo.forEach(async (imageInfo, i) => {
-        const base64Image = imageInfo.image
-        const imageName = imageInfo.imageName
-        const type = imageInfo.imageType
-        var response
-        try {
-          response = await upload(
-            imageName,
-            base64Image,
-            type,
-            req.body.update.userName,
-            'postImages'
-          )
-        } catch (err) {
-          console.error(`Error uploading image: ${err.message}`)
-          return next(new Error(`Error uploading image: ${imageName}`))
-        }
-      })
+      if (req.body.imagesInfo !== undefined) {
+        req.body.imagesInfo.forEach(async (imageInfo, i) => {
+          const base64Image = imageInfo.image
+          const imageName = imageInfo.imageName
+          const type = imageInfo.imageType
+          var response
+          try {
+            response = await upload(
+              imageName,
+              base64Image,
+              type,
+              req.body.update.userName,
+              'postImages'
+            )
+          } catch (err) {
+            console.error(`Error uploading image: ${err.message}`)
+            return next(new Error(`Error uploading image: ${imageName}`))
+          }
+        })
+      }
       res.json({
         isDelivered: delivered,
       })
@@ -318,7 +320,7 @@ app.post('/getUserDetails', async (req, res) => {
     (database = 'naps'),
     (collection = 'NapsDatabase'),
     (data =
-      req.body.matricNo !== undefined
+      req.body.userName !== undefined
         ? req.body
         : { sessionId: ObjectId(req.body.sessionId) })
   )
@@ -344,11 +346,12 @@ app.post('/getUsersDetails', async (req, res) => {
     })
 })
 app.post('/getUpdates', async (req, res) => {
+  const tags = req.body.tags
   await main(
     (func = 'limitFindMany'),
-    (database = 'naps'),
+    (database = req.body.database),
     (collection = req.body.collection),
-    (data = req.body.data),
+    (data = { ...req.body.data, tags: { $in: tags } }),
     (limit = req.body.limit)
   )
     .catch(console.error)
