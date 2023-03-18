@@ -510,7 +510,7 @@ app.post('/mailUser', async (req, res) => {
       pass: MAIL_PASS,
     },
   })
-  var from = 'Encart oo <' + MAIL + '>'
+  var from = 'Pace Up <' + MAIL + '>'
   var mailOptions = {
     from: from,
     to: sepList({ list: details.to, sep: ',' }),
