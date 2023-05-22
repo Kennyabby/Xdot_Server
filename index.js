@@ -161,8 +161,8 @@ app.post('/postUserDetails', async (req, res) => {
   user.sessionId = ObjectId()
   await main(
     (func = 'createDoc'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = user)
   )
     .catch(console.error)
@@ -175,8 +175,8 @@ app.post('/postUserDetails', async (req, res) => {
 app.post('/updateUserImg', async (req, res) => {
   await main(
     (func = 'updateOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body.prop)
   )
     .catch(console.error)
@@ -255,8 +255,8 @@ app.post('/createPost', async (req, res) => {
 app.post('/isMatricPresent', async (req, res) => {
   await main(
     (func = 'findOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body)
   )
     .catch(console.error)
@@ -275,8 +275,8 @@ app.post('/isMatricPresent', async (req, res) => {
 app.post('/isUserPresent', async (req, res) => {
   await main(
     (func = 'findOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body)
   )
     .catch(console.error)
@@ -295,8 +295,8 @@ app.post('/isUserPresent', async (req, res) => {
 app.post('/isEmailPresent', async (req, res) => {
   await main(
     (func = 'findOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body)
   )
     .catch(console.error)
@@ -317,8 +317,8 @@ app.post('/isEmailPresent', async (req, res) => {
 app.post('/getUserDetails', async (req, res) => {
   await main(
     (func = 'findOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data =
       req.body.userName !== undefined
         ? req.body
@@ -334,8 +334,8 @@ app.post('/getUserDetails', async (req, res) => {
 app.post('/getUsersDetails', async (req, res) => {
   await main(
     (func = 'findMany'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body)
   )
     .catch(console.error)
@@ -364,7 +364,7 @@ app.post('/getUpdates', async (req, res) => {
 app.post('/getOneUpdate', async (req, res) => {
   await main(
     (func = 'findOne'),
-    (database = 'naps'),
+    (database = req.body.database),
     (collection = req.body.collection),
     (data = req.body.data)
   )
@@ -378,8 +378,8 @@ app.post('/getOneUpdate', async (req, res) => {
 app.post('/updateOneUser', async (req, res) => {
   await main(
     (func = 'updateOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body.prop)
   )
     .catch(console.error)
@@ -392,7 +392,7 @@ app.post('/updateOneUser', async (req, res) => {
 app.post('/updateOneDoc', async (req, res) => {
   await main(
     (func = 'updateOne'),
-    (database = 'naps'),
+    (database = 'users'),
     (collection = req.body.collection),
     (data = req.body.prop)
   )
@@ -407,8 +407,8 @@ app.post('/closeSession', async (req, res) => {
   const newUserId = ObjectId()
   await main(
     (func = 'updateOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = [{ _id: ObjectId(req.body.prop[0]._id) }, { sessionId: newUserId }])
   )
     .catch(console.error)
@@ -421,8 +421,8 @@ app.post('/closeSession', async (req, res) => {
 app.post('/getpassList', async (req, res) => {
   await main(
     (func = 'findOne'),
-    (database = 'naps'),
-    (collection = 'NapsDatabase'),
+    (database = 'users'),
+    (collection = 'UsersDatabase'),
     (data = req.body.prop)
   )
     .catch(console.error)
@@ -449,11 +449,11 @@ app.post('/getpassList', async (req, res) => {
     })
 })
 
-app.post('/getNapsSettings', async (req, res) => {
+app.post('/getSettings', async (req, res) => {
   await main(
     (func = 'findDocprop'),
-    (database = 'naps'),
-    (collection = 'NapsSettings'),
+    (database = req.body.datbase),
+    (collection = req.body.collection),
     (data = req.body)
   )
     .catch(console.error)
@@ -463,11 +463,11 @@ app.post('/getNapsSettings', async (req, res) => {
       })
     })
 })
-app.post('/updateNapsSettings', async (req, res) => {
+app.post('/updateSettings', async (req, res) => {
   await main(
     (func = 'updateOne'),
-    (database = 'naps'),
-    (collection = 'NapsSettings'),
+    (database = req.body.database),
+    (collection = req.body.collection),
     (data = req.body.prop)
   )
     .catch(console.error)
@@ -535,79 +535,7 @@ app.post('/mailUser', async (req, res) => {
   })
 })
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
-const positionSettings = {
-  positionSettings: [
-    {
-      position: 'president',
-      description: 'First member and the head of the association',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['300'], cgpa: '2.50' },
-    },
-    {
-      position: 'vice president',
-      description:
-        'Assistant and advisor to the president in the performance of his duties',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-    {
-      position: 'general secretary',
-      description:
-        'Responsible for all the secretarial duties of the association',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-    {
-      position: 'assistant general secretary',
-      description:
-        'Assistant and advisor to the general secretary in the performance of his duties',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-    {
-      position: 'public relation officer',
-      description:
-        "Responsible for the publicity of the association's activities",
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-    {
-      position: 'finacial secretary',
-      description:
-        "Responsible for recieving and accounting for all the associations's money derived from any source",
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['300'], cgpa: '2.00' },
-    },
-    {
-      position: 'social director',
-      description:
-        'Responsible for the promotion and organization of social and recreational activities of the association',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-    {
-      position: 'sport director',
-      description: 'Coordinator of all sporting activities of the association',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-    {
-      position: 'academic coordinator',
-      description: 'Chairman of the academic committee of the assocition',
-      heldBy: 'vacant',
-      previouslyHeldBy: [],
-      requirements: { level: ['100', '200', '300'], cgpa: '2.00' },
-    },
-  ],
-}
+
 const main = async (func, database, collection, data, limit) => {
   // const uri = 'mongodb://localhost:27017'
   const uri = process.env.MONGO_URL
