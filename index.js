@@ -392,7 +392,7 @@ app.post('/updateOneUser', async (req, res) => {
 app.post('/updateOneDoc', async (req, res) => {
   await main(
     (func = 'updateOne'),
-    (database = 'users'),
+    (database = req.body.database),
     (collection = req.body.collection),
     (data = req.body.prop)
   )
