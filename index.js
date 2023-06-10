@@ -26,6 +26,7 @@ var userProfile
 var propList = []
 var array = {}
 var updated = false
+var removed = false
 var delivered = false
 var sessionClosed = false
 
@@ -375,6 +376,68 @@ app.post('/getOneUpdate', async (req, res) => {
       })
     })
 })
+app.post('/getManyUpdates', async (req, res) => {
+  await main(
+    (func = 'findMany'),
+    (database = req.body.database),
+    (collection = req.body.collection),
+    (data = req.body.data)
+  )
+    .catch(console.error)
+    .then(() => {
+      res.json({
+        updates: array,
+      })
+    })
+})
+app.post('/createDoc', async (req, res) => {
+  await main(
+    (func = 'createDoc'),
+    (database = req.body.database),
+    (collection = req.body.collection),
+    (data = req.body.update)
+  )
+    .catch(console.error)
+    .then(async () => {
+      res.json({
+        isDelivered: delivered,
+      })
+    })
+})
+app.post('/isDocPresent', async (req, res) => {
+  await main(
+    (func = 'findOne'),
+    (database = req.body.database),
+    (collection = req.body.collection),
+    (data = req.body.data)
+  )
+    .catch(console.error)
+    .then(() => {
+      if (array[0] === null) {
+        res.json({
+          isPresent: false,
+        })
+      } else {
+        res.json({
+          isPresent: true,
+        })
+      }
+    })
+})
+app.post('/removeDoc', async (req, res) => {
+  await main(
+    (func = 'removeDoc'),
+    (database = req.body.database),
+    (collection = req.body.collection),
+    (data = req.body.update)
+  )
+    .catch(console.error)
+    .then(async () => {
+      res.json({
+        isRemoved: removed,
+      })
+    })
+})
 app.post('/updateOneUser', async (req, res) => {
   await main(
     (func = 'updateOne'),
@@ -557,6 +620,7 @@ const main = async (func, database, collection, data, limit) => {
       .db(database)
       .collection(collection)
       .deleteOne(data)
+    removed = true
   }
   const findDocprop = async (database, collection, data) => {
     const result = await client
